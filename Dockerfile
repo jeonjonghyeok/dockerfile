@@ -1,14 +1,21 @@
-FROM node:12.13.0-alpine
+# 1. Build Image
+FROM golang:1.13 AS builder
 
-RUN apk update && apk add build-base git python
+# Install dependencies
+WORKDIR /go/src/github.com/jeonjonghyeok/docker
+RUN go get -d -v github.com/urfave/cli
 
-COPY package.json .
-COPY yarn.lock .
-COPY ./src ./src
-COPY ./dist ./dist
-COPY ./resources ./resources
-COPY ./spec ./spec
+# Build modules
+COPY main.go .
+RUN GOOS=linux go build -a -o greet .
 
-RUN yarn install --production
+# -------------------------------------
+# 2. Production Image
+FROM busybox
+WORKDIR /opt/greet/bin
 
-CMD ["yarn", "start:prod"]
+# Deploy modules
+COPY --from=builder /go/src/github.com/jeonjonghyeok/docker/ .
+ENTRYPOINT ["./greet"]
+
+
