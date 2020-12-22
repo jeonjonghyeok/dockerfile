@@ -17,3 +17,4 @@ WORKDIR /opt/greet/bin
 # Deploy modules
 COPY --from=builder /go/src/github.com/jeonjonghyeok/docker/ .
 ENTRYPOINT ["./greet"]
+
